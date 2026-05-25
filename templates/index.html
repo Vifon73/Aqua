@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8"/>
+  <title>AquaTool</title>
+</head>
+<body>
+
+<h1>AquaTool</h1>
+<hr>
+
+<h2>Enkoduj</h2>
+<textarea id="encode-input" rows="4" cols="50" placeholder="Wpisz tekst..."></textarea><br>
+<button onclick="doEncode()">Szyfruj</button>
+<p>Wynik: <span id="encode-result">—</span></p>
+
+<hr>
+
+<h2>Dekoduj</h2>
+<textarea id="decode-input" rows="4" cols="50" placeholder="Wklej zaszyfrowany tekst..."></textarea><br>
+<button onclick="doDecode()">Deszyfruj</button>
+<p>Wynik: <span id="decode-result">—</span></p>
+
+<hr>
+
+<h2>Generator haseł</h2>
+
+<label><input type="radio" name="passtype" value="digits"> Same cyfry</label>
+<label><input type="radio" name="passtype" value="letters"> Same litery</label>
+<label><input type="radio" name="passtype" value="mixed" checked> Pomieszane</label>
+<br><br>
+
+<label>Długość: <input type="number" id="pass-length" value="16" min="1" max="128"></label>
+<br><br>
+<button onclick="doPassword()">Generuj hasło</button>
+<p>Hasło: <span id="pass-result">—</span></p>
+<script>
+  async function postJSON(url, body) {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    return res.json();
+  }
+
+  async function doEncode() {
+    const text = document.getElementById('encode-input').value;
+    const data = await postJSON('/encode', { text });
+    document.getElementById('encode-result').textContent = data.result ?? data.error;
+  }
+
+  async function doDecode() {
+    const text = document.getElementById('decode-input').value;
+    const data = await postJSON('/decode', { text });
+    document.getElementById('decode-result').textContent = data.result ?? data.error;
+  }
+
+  async function doPassword() {
+    const type   = document.querySelector('input[name="passtype"]:checked').value;
+    const length = document.getElementById('pass-length').value;
+    const data   = await postJSON('/password', { type, length });
+    document.getElementById('pass-result').textContent = data.result ?? data.error;
+  }
+</script>
+
+
+</body>
+</html>
